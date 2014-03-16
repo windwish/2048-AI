@@ -240,6 +240,8 @@ Grid.prototype.addWorstTile = function() {
       var cells = this.availableCells();
       var min_best = 1e10;
       var min_tile = null;
+      var original_minSearchTime = minSearchTime;
+      minSearchTime = 100.0 / (cells.length * 2);
       for(var i = 0; i < cells.length; i++) {
         for(var value = 2; value <= 4; value += 2) {
           var tile = new Tile(cells[i], value);
@@ -258,6 +260,7 @@ Grid.prototype.addWorstTile = function() {
           }
         }
       }
+      minSearchTime = original_minSearchTime;
       this.insertTile(min_tile);
   }
 };
