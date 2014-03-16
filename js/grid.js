@@ -234,8 +234,36 @@ Grid.prototype.move = function (direction) {
   return {moved: moved, score: score, won: won};
 };
 
+Grid.prototype.addWorstTile = function() {
+  if (this.cellsAvailable()) {
+      var ai = new AI(this);
+      var cells = this.availableCells();
+      var min_best = 1e10;
+      var min_tile = null;
+      for(var i = 0; i < cells.length; i++) {
+        for(var value = 2; value <= 4; value += 2) {
+          var tile = new Tile(cells[i], value);
+          this.insertTile(tile);
+          this.playerTurn = true;
+          var best = ai.getBest();
+          this.playerTurn = false;
+          this.removeTile(tile);
+          if(!best) {
+            min_tile = tile;
+            break;
+          }
+          if(best.score < min_best) {
+            min_best = best.score;
+            min_tile = tile;
+          }
+        }
+      }
+      this.insertTile(min_tile);
+  }
+};
+
 Grid.prototype.computerMove = function() {
-  this.addRandomTile();
+  this.addWorstTile();
   this.playerTurn = true;
 }
 
@@ -326,7 +354,7 @@ Grid.prototype.toString = function() {
   return string;
 }
 
-// counts the number of isolated groups. 
+// counts the number of isolated groups.
 Grid.prototype.islands = function() {
   var self = this;
   var mark = function(x, y, value) {
@@ -335,7 +363,7 @@ Grid.prototype.islands = function() {
         self.cells[x][y].value == value &&
         !self.cells[x][y].marked ) {
       self.cells[x][y].marked = true;
-      
+
       for (direction in [0,1,2,3]) {
         var vector = self.getVector(direction);
         mark(x + vector.x, y + vector.y, value);
@@ -361,7 +389,7 @@ Grid.prototype.islands = function() {
       }
     }
   }
-  
+
   return islands;
 }
 
@@ -369,7 +397,7 @@ Grid.prototype.islands = function() {
 // measures how smooth the grid is (as if the values of the pieces
 // were interpreted as elevations). Sums of the pairwise difference
 // between neighboring tiles (in log space, so it represents the
-// number of merges that need to happen before they can merge). 
+// number of merges that need to happen before they can merge).
 // Note that the pieces can be distant
 Grid.prototype.smoothness = function() {
   var smoothness = 0;
@@ -438,7 +466,7 @@ Grid.prototype.monotonicity = function() {
             //console.log(cell, value, target, targetValue);
             increases += targetValue - value;
           }
-        } 
+        }
         if (!queued[target.x][target.y]) {
           cellQueue.push(target);
           queued[target.x][target.y] = true;
