@@ -241,7 +241,7 @@ Grid.prototype.addWorstTile = function() {
       var min_best = 1e10;
       var min_tile = null;
       var original_minSearchTime = minSearchTime;
-      minSearchTime = 100.0 / (cells.length * 2);
+      minSearchTime = 10.0 / (cells.length * 2);
       for(var i = 0; i < cells.length; i++) {
         for(var value = 2; value <= 4; value += 2) {
           var tile = new Tile(cells[i], value);
